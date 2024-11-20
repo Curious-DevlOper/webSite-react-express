@@ -1,4 +1,6 @@
-const mongoose = require('mongoose');
+import { Schema as _Schema, model } from 'mongoose';
+import mongoose from 'mongoose';
+
 const Schema = mongoose.Schema;
 //create schema
 const UserSchema = new Schema({
@@ -16,13 +18,20 @@ const UserSchema = new Schema({
     },
     avatar: {
         type: String,
-        required: true
     },
     date: {
         type: Date,
         default: Date.now 
-    }
+    },
+    role: {
+    type: String,
+    enum: ['user', 'artist'],  // Define roles allowed
+    default: 'user'            // Default to 'user' role
+  }
 
 });
 
-module.exports = User = mongoose.model('users', UserSchema);
+
+// Export the User model
+const User = model('users', UserSchema);
+export default User;
