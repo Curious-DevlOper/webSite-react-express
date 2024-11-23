@@ -8,6 +8,8 @@ export default function validateRegisterInput (data)  {
   data.email = !isEmpty(data.email) ? data.email : '';
   data.password = !isEmpty(data.password) ? data.password : '';
   data.password2 = !isEmpty(data.password2) ? data.password2 : '';
+  data.role = !isEmpty(data.role) ? data.role : 'user'; // Default role
+
 
   if (!Validator.isLength(data.name, { min: 2, max: 30 })) {
     errors.name = 'Name must be between 2 and 30 characters';
@@ -39,6 +41,9 @@ export default function validateRegisterInput (data)  {
 
   if (!Validator.equals(data.password, data.password2)) {
     errors.password2 = 'Passwords must match';
+  }
+  if (!['user', 'admin', 'artist'].includes(data.role)) {
+    errors.role = 'Invalid role';
   }
 
     return {

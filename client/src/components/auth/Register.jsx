@@ -1,145 +1,284 @@
-import  { Component } from 'react';
-import axios from 'axios';
-import classnames from 'classnames';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Ensure Bootstrap CSS is loaded
+// import { useState, useEffect } from "react";
+// import { useDispatch } from "react-redux";
+// import { authActions } from "../../store/auth-slice";
+// import { useNavigate } from "react-router-dom";
 
-class Register extends Component {
-  constructor() {
-    super();
-    this.state = {
-      name: '',
-      email: '',
-      password: '',
-      password2: '',
-      role: 'user', // Default role is user
+// const Register = () => {
+//   const dispatch = useDispatch();
+//   const navigate = useNavigate();
 
-      errors: {}
-    };
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [role, setRole] = useState("user"); // Default role is 'user'
 
-    this.onChange = this.onChange.bind(this);
-    this.onSubmit = this.onSubmit.bind(this);
-  }
+//   useEffect(() => {
+//     console.log("Register component mounted");
+//   }, []); // Runs once when the component mounts
 
-  onChange(e) {
-    this.setState({ [e.target.name]: e.target.value });
-  }
+//   const onChange = (e) => {
+//     const { name, value } = e.target;
 
-  onSubmit(e) {
+//     if (name === "email") {
+//       setEmail(value);
+//     } else if (name === "password") {
+//       setPassword(value);
+//     } else if (name === "role") {
+//       setRole(value);
+//     }
+
+//     console.log(name, value); // Logs form field changes
+//   };
+
+//   const registerHandler = (e) => {
+//     e.preventDefault();
+
+//     // Simulate a server response with role-based registration
+//     const user = {
+//       email,
+//       password,
+//       role,
+//     };
+
+//     // Dispatching the registration action
+//     dispatch(
+//       authActions.register({
+//         user: { email, role }, // Example payload
+//       })
+//     );
+    
+//     console.log("Form submitted, user registered: ", user);
+
+//     // Navigate based on role
+//     if (role === "admin") {
+//       navigate("/profile");
+//     } else if (role === "artist") {
+//       navigate("/profile");
+//     } else {
+//       navigate("/profile");
+//     }
+//   };
+
+//   return (
+//     <div className="register">
+//       <div className="container">
+//         <div className="row">
+//           <div className="col-md-6 col-lg-5 mx-auto">
+//             <h1 className="display-4 text-center">Register</h1>
+//             <p className="lead text-center">
+//               Create your account
+//             </p>
+//             <form onSubmit={registerHandler}>
+//               <div className="mb-3">
+//                 <input
+//                   type="email"
+//                   className="form-control form-control-lg"
+//                   placeholder="Email Address"
+//                   name="email"
+//                   value={email}
+//                   onChange={onChange}
+//                 />
+//               </div>
+//               <div className="mb-3">
+//                 <input
+//                   type="password"
+//                   className="form-control form-control-lg"
+//                   placeholder="Password"
+//                   name="password"
+//                   value={password}
+//                   onChange={onChange}
+//                 />
+//               </div>
+//               <div className="mb-3">
+//                 <select
+//                   className="form-select form-control-lg"
+//                   name="role"
+//                   value={role}
+//                   onChange={onChange}
+//                 >
+//                   <option value="user">User</option>
+//                   <option value="artist">Artist</option>
+//                   <option value="admin">Admin</option>
+//                 </select>
+//               </div>
+//               <button type="submit" className="btn btn-info w-100 mt-4">
+//                 Register
+//               </button>
+//             </form>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Register;
+
+import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { authActions } from "../../store/auth-slice";
+import { useNavigate } from "react-router-dom";
+
+const Register = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const [name, setName] = useState("");
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [password2, setPassword2] = useState("");
+
+  const [role, setRole] = useState("user"); // Default role is 'user'
+  const [error, setError] = useState(""); // State to handle errors
+
+  useEffect(() => {
+    console.log("Register component mounted");
+  }, []); // Runs once when the component mounts
+
+  const onChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "name") {
+      setName(value);
+    } else if (name === "email") {
+      setEmail(value);
+    } else if (name === "password") {
+      setPassword(value);
+    } else if (name === "password2") {
+      setPassword2(value);
+    } else if (name === "role") {
+      setRole(value);
+    }
+
+    console.log(name, value); // Logs form field changes
+  };
+
+  const registerHandler = async (e) => {
     e.preventDefault();
 
-    const newUser = {
-      name: this.state.name,
-      email: this.state.email,
-      password: this.state.password,
-      password2: this.state.password2
+    // Create user payload
+    const user = {
+      name,
+  email,
+  password,
+  password2,
+  role,
     };
 
-    axios
-      .post('/api/users/register', newUser)
-      .then(res => console.log(res.data))
-      .catch(err => this.setState({ errors: err.response.data }));
-  }
+    try {
+      // Simulate a server call (Replace with actual API call)
+      const response = await fetch("/api/users/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(user),
+      });
 
-  render() {
-    const { errors } = this.state;
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.email || "Registration failed. Please try again.");
+      }
 
-    return (
-      <div className="register">
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-md-8">
-              <h1 className="display-4 text-center">Sign Up</h1>
-              <p className="lead text-center">Create your DevConnector account</p>
-              <form onSubmit={this.onSubmit}>
-                <div className="mb-3">
-                  <input
-                    type="text"
-                    className={classnames('form-control form-control-lg', {
-                      'is-invalid': errors.name
-                    })}
-                    placeholder="Name"
-                    name="name"
-                    value={this.state.name}
-                    onChange={this.onChange}
-                    autoComplete="name"
-                  />
-                  {errors.name && (
-                    <div className="invalid-feedback">{errors.name}</div>
-                  )}
-                </div>
-                <div className="mb-3">
-                  <input
-                    type="email"
-                    className={classnames('form-control form-control-lg', {
-                      'is-invalid': errors.email
-                    })}
-                    placeholder="Email Address"
-                    name="email"
-                    value={this.state.email}
-                    onChange={this.onChange}
-                    autoComplete="email"
-                  />
-                  {errors.email && (
-                    <div className="invalid-feedback">{errors.email}</div>
-                  )}
-                  <small className="form-text text-muted">
-                    This site uses Gravatar so if you want a profile image, use a Gravatar email
-                  </small>
-                </div>
-                <div className="mb-3">
-                  <input
-                    type="password"
-                    className={classnames('form-control form-control-lg', {
-                      'is-invalid': errors.password
-                    })}
-                    placeholder="Password"
-                    name="password"
-                    value={this.state.password}
-                    onChange={this.onChange}
-                    autoComplete="off"
-                  />
-                  {errors.password && (
-                    <div className="invalid-feedback">{errors.password}</div>
-                  )}
-                </div>
-                <div className="mb-3">
-                  <input
-                    type="password"
-                    className={classnames('form-control form-control-lg', {
-                      'is-invalid': errors.password2
-                    })}
-                    placeholder="Confirm Password"
-                    name="password2"
-                    value={this.state.password2}
-                    onChange={this.onChange}
-                    autoComplete="off"
-                  />
-                  {errors.password2 && (
-                    <div className="invalid-feedback">{errors.password2}</div>
-                  )}
-                </div>
-                {/* Role Selection */}
-                <div className="mb-3">
-                  <label htmlFor="role" className="form-label">Register as:</label>
-                  <select 
-                    name="role" 
-                    value={this.state.role} 
-                    onChange={this.onChange} 
-                    className="form-control form-control-lg">
-                    <option value="user">User</option>
-                    <option value="artist">Artist</option>
-                  </select>
-                </div>
-                <button type="submit" className="btn btn-primary btn-lg w-100 mt-4">
-                  Sign Up
-                </button>
-              </form>
-            </div>
+      const responseData = await response.json();
+      console.log("User registered successfully:", responseData);
+
+      // Dispatch the user data to Redux store
+      dispatch(
+        authActions.login({
+          user: { email, role }, // Simulating auto-login after registration
+        })
+      );
+
+      // Navigate based on role
+      if (role === "admin") {
+        navigate("/admin-dashboard");
+      } else if (role === "artist") {
+        navigate("/artist-dashboard");
+      } else {
+        navigate("/user-dashboard");
+      }
+    } catch (err) {
+      console.error("Error during registration:", err.message);
+      setError(err.message); // Display error to the user
+    }
+  };
+
+  return (
+    <div className="register">
+      <div className="container">
+        <div className="row">
+          <div className="col-md-6 col-lg-5 mx-auto">
+            <h1 className="display-4 text-center">Register</h1>
+            <p className="lead text-center">Create your account</p>
+            {error && <div className="alert alert-danger">{error}</div>}
+            <form onSubmit={registerHandler}>
+            <div className="mb-3">
+                <input
+                  type="name"
+                  className="form-control form-control-lg"
+                  placeholder="Name"
+                  name="name"
+                  value={name}
+                  onChange={onChange}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <input
+                  type="email"
+                  className="form-control form-control-lg"
+                  placeholder="Enter your Email"
+                  name="email"
+                  value={email}
+                  onChange={onChange}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <input
+                  type="password"
+                  className="form-control form-control-lg"
+                  placeholder="Password"
+                  name="password"
+                  value={password}
+                  onChange={onChange}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <input
+                  type="password2"
+                  className="form-control form-control-lg"
+                  placeholder=" repeat Password"
+                  name="password2"
+                  value={password2}
+                  onChange={onChange}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <select
+                  className="form-select form-control-lg"
+                  name="role"
+                  value={role}
+                  onChange={onChange}
+                  required
+                >
+                  <option value="user">User</option>
+                  <option value="artist">Artist</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <button type="submit" className="btn btn-info w-100 mt-4">
+                Register
+              </button>
+            </form>
           </div>
         </div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 export default Register;
